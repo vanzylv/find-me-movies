@@ -1,0 +1,70 @@
+<html lang="en">
+
+<head>
+    <link href="css/angular-material-icons.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.9.0/loading-bar.min.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.11.2/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.9.0/loading-bar.min.js"></script>
+    <script type="text/javascript" src="moviedb.module.js"></script>
+    <script type="text/javascript" src="moviedb.service.js"></script>
+    <script type="text/javascript" src="moviedb.controller.js"></script>
+</head>
+
+<body ng-app="findMeMoviesApp">
+    <div ng-controller="searchCtr" layout="column" layout-fill>
+        <md-toolbar class='md-toolbar-tools'>
+            <div layout='row' flex>
+                <span flex></span>
+                <i class="material-icons">play_circle_outline</i>
+                <h1>Find me movies</h1>
+            </div>
+        </md-toolbar>
+        <div layout='row' flex>
+            <md-sidenav class='md-whiteframe-1dp' layout-padding md-is-locked-open='true'>
+                <md-input-container>
+                    <label>Search for a movie or person</label>
+                    <input ng-keypress='fuzzySearch($event)' step="any" type="text" required ng-model="searchPanelUI.searchString" autofocus>
+                </md-input-container>
+                <div ng-show='searchPanelUI.showHints'>Search for your favourite movie,director or actor</div>
+                <md-list>
+                    <md-list-item layout-padding class="md-2-line md-whiteframe-3dp" ng-repeat="item in sideBarItems">
+                        <img ng-src="{{item.image}}" class="md-avatar" />
+                        <div class="md-list-item-text" layout="column">
+                            <h3>{{ item.title }}</h3>
+                            <h4>Nog een</h4>
+                            <p>Nog twee</p>
+                        </div>
+                    </md-list-item>
+                </md-list>
+            </md-sidenav>
+            <div flex='80' layout-padding layout='column'>
+                <md-grid-list md-row-height="2.6em" layout md-rows='16' md-cols="4" md-row-height="1:1" md-gutter="8px">
+                    <!-- <md-grid-tile   style='background-color: gray' layout ng-if='tile.displayAsCategory' layout-padding class="md-whiteframe-6dp tile-style" ng-repeat="tile in contentItems" md-rowspan="5" md-colspan="1">
+                            <div layout-padding layout='row'>
+                                <div class='md-subhead'>{{tile.title}}</div>
+                            </div>
+                    </md-grid-tile> -->
+                    <!-- ng-if='!tile.displayAsCategory' -->
+                    <md-grid-tile layout back-img='{{tile.image}}'  ng-click='getRelatedItems(tile);' layout-padding class="md-whiteframe-6dp tile-style" ng-repeat="tile in contentItems" md-rowspan="{{tile.rows}}" md-colspan="{{tile.cols}}">
+                        <md-grid-tile-footer class='grid-tile-title-color'>
+                            <div layout-padding layout='row'>
+                                <i class="material-icons">{{tile.resultTypeIcon}}</i>
+                                <div class='md-subhead'>{{tile.title}}</div>
+                            </div>
+                        </md-grid-tile-footer>
+                    </md-grid-tile>
+                </md-grid-list>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

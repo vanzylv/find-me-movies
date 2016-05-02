@@ -1,0 +1,8 @@
+.md-grid-tile {
+    transition: all 300ms ease-out 50ms;
+}
+
+.grid-tile-title-color {
+    background: rgba(0, 0, 0, 0.68);
+    height: 36px;
+}
