@@ -1,19 +1,12 @@
 findMeMoviesApp.service('movieDBService', function($http, $q) {
     var self = this;
     var apiKey = '5e13a89c7b413656c6ef6d3032f7a601';
-    var base_uri = 'http://api.themoviedb.org/3/';
-    var images_uri = 'http://image.tmdb.org/t/p/';
+    var base_uri = 'https://api.themoviedb.org/3/';
+    var images_uri = 'https://image.tmdb.org/t/p/';
 
     self.logAPIConfig = function() {
 
-
-        return $http.get(base_uri + 'configuration?api_key=' + apiKey, {
-            cache: true
-        });
-
-        // .then(function(config) {
-        //     console.log('API Config', config);
-        // });
+        return $http.get(base_uri + 'configuration?api_key=' + apiKey);
 
     }
 
@@ -32,7 +25,6 @@ findMeMoviesApp.service('movieDBService', function($http, $q) {
     }
 
     self.findPersonInfo = function(personId) {
-
 
         //['Actor','Producer','Director']
         console.log('PERSON INFO : ', base_uri + 'person/' + personId + '/movie_credits?api_key=' + apiKey)

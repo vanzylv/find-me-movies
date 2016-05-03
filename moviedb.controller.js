@@ -7,11 +7,8 @@ findMeMoviesApp.run(['$anchorScroll', function($anchorScroll) {
 }]).controller('searchCtr', ['$scope', '$mdSidenav', '$mdDialog', 'movieDBService',
     function($scope, $mdSidenav, $mdDialog, movieDBService) {
 
-
         $scope.sideBarItems = [];
         $scope.contentItems = [];
-
-
         $scope.baseImageUrl, $scope.imageW45, $scope.imageW300, $scope.imageW92, $scope.imageW154, $scope.imageW185, $scope.imageW500;
 
         movieDBService.logAPIConfig().then(function(config) {
@@ -35,6 +32,35 @@ findMeMoviesApp.run(['$anchorScroll', function($anchorScroll) {
         };
 
 
+        //Display detailed description of selected item in popup dialog
+        $scope.showItemInfoDialog = function(item,ev) {
+
+            if (item.mediaType === 'movie') {
+
+                movieDBService.findMovie(0, item.id).then(function(movieInformation) {
+                    console.log('movie info',movieInformation);
+                    $mdDialog.show({
+                        controller: DialogController,
+                        templateUrl: 'moreinfo.tmpl.html',
+                        parent: angular.element(document.body),
+                        targetEvent: ev,
+                        clickOutsideToClose: true,
+                        resolve: {
+                            itemDetail: function() {
+                                return movieInformation;
+                            }
+                        }
+                    }).then(function(answer) {
+                        //$scope.status = 'You said the information was "' + answer + '".';
+                    }, function() {
+                        //$scope.status = 'You cancelled the dialog.';
+                    });
+
+                });
+
+            }
+
+        }
 
         //Do initial search for movie / person
         $scope.fuzzySearch = function(event) {
@@ -57,7 +83,10 @@ findMeMoviesApp.run(['$anchorScroll', function($anchorScroll) {
                     populateGrid(searchResults);
                 });
 
-                pushToSideBarList($scope.searchPanelUI.searchString);
+                pushToSideBarList({
+                    title: $scope.searchPanelUI.searchString,
+                    image: 'search.png'
+                });
 
             }
         }
@@ -66,16 +95,16 @@ findMeMoviesApp.run(['$anchorScroll', function($anchorScroll) {
         populateGrid = function(results) {
 
             _.each(results, function(resultItem) {
-
                 var normalizedResult = normalizeSearchResults(resultItem);
-
                 normalizedResult.displayAsResultType = true;
                 $scope.contentItems.push(normalizedResult);
             });
         }
 
         pushToSideBarList = function(newSideBarItem) {
+
             $scope.sideBarItems.push(newSideBarItem);
+
         }
 
         clearSideBarItems = function() {
@@ -95,7 +124,6 @@ findMeMoviesApp.run(['$anchorScroll', function($anchorScroll) {
         normalizeSearchResults = function(item) {
 
             var result = {};
-
             var mediaType = !item.hasOwnProperty('media_type') ? 'movie' : item.media_type;
 
             var image = mediaType === 'person' ? item.profile_path : item.poster_path;
@@ -103,7 +131,7 @@ findMeMoviesApp.run(['$anchorScroll', function($anchorScroll) {
                 imagePath = '';
             }
 
-            result.id = item.id;
+
             if (mediaType === 'person') {
                 result.title = item.name;
             } else if (mediaType === 'movie') {
@@ -111,6 +139,7 @@ findMeMoviesApp.run(['$anchorScroll', function($anchorScroll) {
 
             }
 
+            result.id = item.id;
             result.resultTypeIcon = mediaType === 'movie' ? 'movie' : 'account_circle'
             result.image = $scope.baseImageUrl + $scope.imageW185 + image;
             result.mediaType = mediaType;
@@ -121,11 +150,7 @@ findMeMoviesApp.run(['$anchorScroll', function($anchorScroll) {
 
         }
 
-
-
-
         $scope.getRelatedItems = function(item) {
-
 
             pushToSideBarList({
                 title: item.title,
@@ -140,50 +165,51 @@ findMeMoviesApp.run(['$anchorScroll', function($anchorScroll) {
 
             if (item.mediaType === 'movie') {
 
-
-
                 movieDBService.findMovieInfo(item.id).then(function(serviceResults) {
 
                     console.log('findMovieInfo', serviceResults)
 
-
                     var categories = ['actors', 'directors', 'producers'];
-
                     var resultsToGrid = [];
+
                     _.each(categories, function(categoryKey) {
+
+                        var friendlyCategoryName = categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1);
 
                         if (serviceResults[categoryKey].length > 0) {
                             resultsToGrid.push({
                                 displayAsCategory: true,
-                                title: categoryKey,
+                                title: friendlyCategoryName,
                                 cols: 4,
-                                rows:1
+                                rows: 1
                             });
                         }
 
-                        _.each(serviceResults[categoryKey], function(resultCategories) {
+                        _.each(serviceResults[categoryKey], function(resultCategory) {
 
+                            var image;
+
+                            if (!resultCategory.profile_path) {
+                                image = 'no-profile.jpg';
+                            } else {
+                                image = $scope.baseImageUrl + $scope.imageW185 + resultCategory.profile_path;
+                            }
 
                             resultsToGrid.push({
-                                id: resultCategories.id,
-                                title: resultCategories.name,
-                                image: $scope.baseImageUrl + $scope.imageW185 + resultCategories.profile_path,
+                                id: resultCategory.id,
+                                title: resultCategory.name,
+                                image: image,
                                 resultTypeIcon: 'account_circle',
                                 cols: 1,
-                                rows : 5,
-                                mediaType:'person'
+                                rows: 5,
+                                mediaType: 'person'
                             });
-
 
                         });
 
                     });
 
-                    console.log(resultsToGrid)
                     $scope.contentItems = resultsToGrid;
-
-
-
 
                 });
 
@@ -192,72 +218,50 @@ findMeMoviesApp.run(['$anchorScroll', function($anchorScroll) {
 
                     console.log('findPersonInfo', serviceResults)
 
-                  
                     var categories = ['asActor', 'asDirector', 'asProducer'];
-
                     var resultsToGrid = [];
+
                     _.each(categories, function(categoryKey) {
+
+                        var friendlyName = 'As ' + categoryKey.substr(2, categoryKey.length).toLowerCase();
 
                         if (serviceResults[categoryKey].length > 0) {
                             resultsToGrid.push({
                                 displayAsCategory: true,
-                                title: categoryKey,
+                                title: friendlyName,
                                 cols: 4,
-                                rows:1
+                                rows: 1
                             });
                         }
 
-                        _.each(serviceResults[categoryKey], function(resultCategories) {
+                        _.each(serviceResults[categoryKey], function(resultCategory) {
 
+                            var image;
+
+                            if (!resultCategory.poster_path) {
+                                image = 'no-profile.jpg';
+                            } else {
+                                image = $scope.baseImageUrl + $scope.imageW185 + resultCategory.poster_path
+                            }
 
                             resultsToGrid.push({
-                                id: resultCategories.id,
-                                title: resultCategories.title,
-                                image: $scope.baseImageUrl + $scope.imageW185 + resultCategories.poster_path,
+                                id: resultCategory.id,
+                                title: resultCategory.title,
+                                image: image,
                                 resultTypeIcon: 'movie',
                                 cols: 1,
-                                rows:5,
-                                mediaType:'movie'
+                                rows: 5,
+                                mediaType: 'movie'
                             });
-
 
                         });
 
                     });
 
-                    console.log(resultsToGrid)
                     $scope.contentItems = resultsToGrid;
 
                 });
-
-
-
             }
-
-
-
-
-
-
-            //http call for item detailed info
-
-            // $mdDialog.show({
-            //         controller: DialogController,
-            //         templateUrl: 'moreinfo.tmpl.html',
-            //         parent: angular.element(document.body),
-            //         targetEvent: ev,
-            //         clickOutsideToClose: true,
-            //         resolve: {
-            //             itemId: function() {
-            //                 return itemId;
-            //             }
-            //         }
-            //     })
-            //     .then(function(answer) {
-            //         //$scope.status = 'You said the information was "' + answer + '".';
-            //     }, function() {
-            //         //$scope.status = 'You cancelled the dialog.';
-            //     });
 
         };
 
@@ -266,18 +270,20 @@ findMeMoviesApp.run(['$anchorScroll', function($anchorScroll) {
 
 
 findMeMoviesApp.directive('backImg', function() {
+
     return function(scope, element, attrs) {
+
         var url = attrs.backImg;
 
         element.css({
             'background-image': 'url(' + url + ')',
             'background-size': 'cover'
         });
+
     };
 });
 
-function DialogController($scope, $mdDialog, itemId) {
-
+function DialogController($scope, $mdDialog, itemDetail) {
 
     $scope.hide = function() {
         $mdDialog.hide();

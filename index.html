@@ -35,31 +35,39 @@
                 </md-input-container>
                 <div ng-show='searchPanelUI.showHints'>Search for your favourite movie,director or actor</div>
                 <md-list>
-                    <md-list-item layout-padding class="md-2-line md-whiteframe-3dp" ng-repeat="item in sideBarItems">
-                        <img ng-src="{{item.image}}" class="md-avatar" />
+                    <md-list-item layout-padding class="md-whiteframe-3dp" ng-repeat="item in sideBarItems">
+                        <img style='height: 50px;' ng-src="{{item.image}}" />
                         <div class="md-list-item-text" layout="column">
-                            <h3>{{ item.title }}</h3>
-                            <h4>Nog een</h4>
-                            <p>Nog twee</p>
+                            {{item.title }}
                         </div>
                     </md-list-item>
                 </md-list>
             </md-sidenav>
             <div flex='80' layout-padding layout='column'>
-                <md-grid-list md-row-height="2.6em" layout md-rows='16' md-cols="4" md-row-height="1:1" md-gutter="8px">
+                <md-grid-list md-row-height="4em" layout md-rows='16' md-cols="4" md-gutter="8px">
                     <!-- <md-grid-tile   style='background-color: gray' layout ng-if='tile.displayAsCategory' layout-padding class="md-whiteframe-6dp tile-style" ng-repeat="tile in contentItems" md-rowspan="5" md-colspan="1">
                             <div layout-padding layout='row'>
                                 <div class='md-subhead'>{{tile.title}}</div>
                             </div>
                     </md-grid-tile> -->
                     <!-- ng-if='!tile.displayAsCategory' -->
-                    <md-grid-tile layout back-img='{{tile.image}}'  ng-click='getRelatedItems(tile);' layout-padding class="md-whiteframe-6dp tile-style" ng-repeat="tile in contentItems" md-rowspan="{{tile.rows}}" md-colspan="{{tile.cols}}">
-                        <md-grid-tile-footer class='grid-tile-title-color'>
+                    <md-grid-tile layout back-img='{{tile.image}}'  ng-click='getRelatedItems(tile);' layout-padding class="md-ink-ripple category-header-color md-whiteframe-6dp tile-style" ng-repeat="tile in contentItems" md-rowspan="{{tile.rows}}" md-colspan="{{tile.cols}}">
+                        <md-grid-tile-footer ng-if='!tile.displayAsCategory' class='grid-tile-title-color'>
                             <div layout-padding layout='row'>
+                                
                                 <i class="material-icons">{{tile.resultTypeIcon}}</i>
-                                <div class='md-subhead'>{{tile.title}}</div>
+                                <div flex='70' class='md-subhead'>
+                                    <md-tooltip md-visible="false" md-delay="400" md-direction="bottom" md-autohide="true">
+                                      {{tile.title}}
+                                    </md-tooltip>
+                                    {{tile.title | limitTo:15}}{{tile.title.length > 15 ? '...' : ''}}
+                                </div>
+                                <md-button>
+                                    <i class="material-icons" ng-click='showItemInfoDialog(tile,$event)'>info_outline</i>
+                                </md-button>
                             </div>
                         </md-grid-tile-footer>
+                        <h3 style='color:white' ng-if='tile.displayAsCategory'>{{tile.title}}</h3>
                     </md-grid-tile>
                 </md-grid-list>
             </div>
