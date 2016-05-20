@@ -1,0 +1,34 @@
+<!-- @author Vickus van Zyl <vanzylv@gmail.com> -->
+<md-dialog aria-label="{{name}}" ng-cloak>
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>{{name}} </h2>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="cancel()">
+                    <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content>
+            <div class="md-dialog-content">
+                <h2>{{tagLine}}</h2>
+                <p><img src="{{image}}" alt="{{originalTitle}}"></p>
+                <p>
+                    {{biography}}
+                </p>
+                <p>{{birthday}}</p>
+                <p>{{birthday}}</p>
+            </div>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <span flex></span>
+            <md-button ng-click="answer('not useful')">
+                Not Useful
+            </md-button>
+            <md-button ng-click="answer('useful')" style="margin-right:20px;">
+                View on imdb {{imdbId}}
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

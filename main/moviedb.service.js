@@ -1,44 +1,51 @@
+/**
+ * @author Vickus van Zyl <vanzylv@gmail.com>
+ */
+
+'use strict';
+
 findMeMoviesApp.service('movieDBService', function($http, $q) {
     var self = this;
     var apiKey = '5e13a89c7b413656c6ef6d3032f7a601';
     var base_uri = 'https://api.themoviedb.org/3/';
     var images_uri = 'https://image.tmdb.org/t/p/';
 
+    //load themovie database configuration
     self.logAPIConfig = function() {
 
-        return $http.get(base_uri + 'configuration?api_key=' + apiKey);
-
-    }
-
-    self.findMovie = function(minRating, movieId) {
-
-        return $http.get(base_uri + 'movie/' + movieId + '?api_key=' + apiKey, {
-
-        }).then(function(response) {
-
-            if (response.data.vote_average > minRating && response.data.vote_count > 50) {
-
-                return response.data;
-            }
-
+        return $http.get(base_uri + 'configuration?api_key=' + apiKey, {
+            cached: true
         });
     }
 
+    //find detailed information on person
+    self.findPerson = function(personId) {
+        return $http.get(base_uri + 'person/' + personId + '?api_key=' + apiKey, {
+            cached: true
+        }).then(function(response) {
+            return response.data;
+        });
+    }
+
+    //find detailed information on movie
+    self.findMovie = function(movieId) {
+        return $http.get(base_uri + 'movie/' + movieId + '?api_key=' + apiKey, {
+            cached: true
+        }).then(function(response) {
+            return response.data;
+        });
+    }
+
+    //find information related to person
     self.findPersonInfo = function(personId) {
-
-        //['Actor','Producer','Director']
-        console.log('PERSON INFO : ', base_uri + 'person/' + personId + '/movie_credits?api_key=' + apiKey)
+        
         return $http.get(base_uri + 'person/' + personId + '/movie_credits?api_key=' + apiKey, {
-
+            cached: true
         }).then(function(response) {
 
             var asDirector = _.filter(response.data.crew, { 'job': 'Director' });
             var asProducer = _.filter(response.data.crew, { 'job': 'Producer' });
             var asActor = _.slice(response.data.cast, 0, 4);
-
-            console.log('As Director', asDirector);
-            console.log('As Producer', asProducer);
-            console.log('As Actor', asActor);
 
             return {
 
@@ -53,10 +60,8 @@ findMeMoviesApp.service('movieDBService', function($http, $q) {
 
     }
 
+    //find information related to a movie
     self.findMovieInfo = function(movieId) {
-        //['Actors','Directors','Producers']
-
-        console.log('find movie info', base_uri + 'movie/' + movieId + '/credits?api_key=' + apiKey);
 
         return $http.get(base_uri + 'movie/' + movieId + '/credits?api_key=' + apiKey, {
             cached: true
@@ -66,13 +71,10 @@ findMeMoviesApp.service('movieDBService', function($http, $q) {
             var producers = _.filter(response.data.crew, { 'job': 'Producer' });
             var actors = _.slice(response.data.cast, 0, 4);
 
-
             return {
-
                 directors: directors,
                 producers: producers,
                 actors: actors
-
             };
 
         });
@@ -84,7 +86,6 @@ findMeMoviesApp.service('movieDBService', function($http, $q) {
         return $http.get(base_uri + 'search/multi?api_key=' + apiKey + '&query=fight+club', {
             cache: true
         }).then(function(response) {
-
             var data = response.data.results;
             var movies = _.groupBy(data, ['media_type', 'movie']).true;
             var moviesFiltered = _.chain(movies).orderBy(['popularity'], ['desc']).filter(function(item) {

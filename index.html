@@ -1,8 +1,9 @@
+<!-- @author Vickus van Zyl <vanzylv@gmail.com> -->
 <html lang="en">
 
 <head>
-    <link href="css/angular-material-icons.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">
+    <link href="assets/css/angular-material-icons.css" rel="stylesheet">
+    <link href="assets/css/styles.css" rel="stylesheet">
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.1/animate.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.9.0/loading-bar.min.css">
@@ -13,9 +14,9 @@
     <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.11.2/lodash.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.9.0/loading-bar.min.js"></script>
-    <script type="text/javascript" src="moviedb.module.js"></script>
-    <script type="text/javascript" src="moviedb.service.js"></script>
-    <script type="text/javascript" src="moviedb.controller.js"></script>
+    <script type="text/javascript" src="main/moviedb.module.js"></script>
+    <script type="text/javascript" src="main/moviedb.service.js"></script>
+    <script type="text/javascript" src="main/moviedb.controller.js"></script>
 </head>
 
 <body ng-app="findMeMoviesApp">
@@ -33,7 +34,6 @@
                     <label>Search for a movie or person</label>
                     <input ng-keypress='fuzzySearch($event)' step="any" type="text" required ng-model="searchPanelUI.searchString" autofocus>
                 </md-input-container>
-                <div ng-show='searchPanelUI.showHints'>Search for your favourite movie,director or actor</div>
                 <md-list>
                     <md-list-item layout-padding class="md-whiteframe-3dp" ng-repeat="item in sideBarItems">
                         <img style='height: 50px;' ng-src="{{item.image}}" />
@@ -44,21 +44,24 @@
                 </md-list>
             </md-sidenav>
             <div flex='80' layout-padding layout='column'>
+                
+                <div ng-if='contentItems.length === 0'>
+                    <ng-content layout-padding>
+                        <i class="material-icons">arrow_back</i>
+                        Enter a director,producer or actor's name to start discovering new movies.
+                    <ng-content>
+                </div>
+
                 <md-grid-list md-row-height="4em" layout md-rows='16' md-cols="4" md-gutter="8px">
-                    <!-- <md-grid-tile   style='background-color: gray' layout ng-if='tile.displayAsCategory' layout-padding class="md-whiteframe-6dp tile-style" ng-repeat="tile in contentItems" md-rowspan="5" md-colspan="1">
-                            <div layout-padding layout='row'>
-                                <div class='md-subhead'>{{tile.title}}</div>
-                            </div>
-                    </md-grid-tile> -->
-                    <!-- ng-if='!tile.displayAsCategory' -->
-                    <md-grid-tile layout back-img='{{tile.image}}'  ng-click='getRelatedItems(tile);' layout-padding class="md-ink-ripple category-header-color md-whiteframe-6dp tile-style" ng-repeat="tile in contentItems" md-rowspan="{{tile.rows}}" md-colspan="{{tile.cols}}">
+                    <md-grid-tile layout ng-click='getRelatedItems(tile);' layout-padding class="md-ink-ripple category-header-color md-whiteframe-6dp tile-style" ng-repeat="tile in contentItems" md-rowspan="{{tile.rows}}" md-colspan="{{tile.cols}}">
+                    
+                    <!-- <md-grid-tile layout back-img='{{tile.image}}' ng-click='getRelatedItems(tile);' layout-padding class="md-ink-ripple category-header-color md-whiteframe-6dp tile-style" ng-repeat="tile in contentItems" md-rowspan="{{tile.rows}}" md-colspan="{{tile.cols}}"> -->
                         <md-grid-tile-footer ng-if='!tile.displayAsCategory' class='grid-tile-title-color'>
                             <div layout-padding layout='row'>
-                                
                                 <i class="material-icons">{{tile.resultTypeIcon}}</i>
                                 <div flex='70' class='md-subhead'>
                                     <md-tooltip md-visible="false" md-delay="400" md-direction="bottom" md-autohide="true">
-                                      {{tile.title}}
+                                        {{tile.title}}
                                     </md-tooltip>
                                     {{tile.title | limitTo:15}}{{tile.title.length > 15 ? '...' : ''}}
                                 </div>
